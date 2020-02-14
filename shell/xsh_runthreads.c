@@ -5,57 +5,33 @@
 /*
 thread pool methods
 */
-sid32 threads;
-pid32 callerPid;
-//int16 threadtab[NPROC];
 int32 nthreads;
+char *tpname;
 
-void initialize() {
+//TODO add max number of concurrent processes blocking with a semaphore
+//TODO receive functions as parameters
+//TODO parameters?
+
+void initialize(char *name) {
     nthreads = 0;
-    threads = semcreate(1);
+    tpname = name;
 }
 
 void threadWraper(void (*procaddr)()) {
     pid32 pid = getpid();
-    //kprintf("gonna call function %d\n", pid);
     procaddr();
-    //kprintf("calling wait %d\n", pid);
-    //wait(threads);
-    //kprintf("calling send %d\n", pid);
-    //threadtab[pid] = 0;
     nthreads--;
-    //send(callerPid, pid);
 }
 
 void submit(void (*procaddr)()) {
-    callerPid = getpid();
-    pid32 taskPid = create(threadWraper, 1024, 20, "threadpool", 1, procaddr);
-    //threadtab[taskPid] = 1;
     nthreads++;
+    pid32 taskPid = create(threadWraper, 1024, 20, *tpname + "_" + nthreads, 1, procaddr);
     resume(taskPid);
 }
 
 void waitForTasks() {
     while (nthreads > 0) {
         yield();
-        //kprintf("receive %d\n", nthreads);
-        //pid32 pid = receive();
-        //kprintf("received %d\n", pid);
-        //signal(threads);
-        //nthreads--;
-        /*kprintf("threads %d\n", nthreads);
-        if (nthreads == 0) {
-            break;
-        }*/
-
-       /* int32 i;
-        for (i = 0; i < 100; i++) {
-            if (threadtab[i] > 0) {
-                kprintf("pid still running %d\n", i);
-                goto receiveAnother;
-            }
-            
-        }*/
     }
 }
 /*
@@ -71,16 +47,24 @@ void myfunc() {
 
 shellcmd xsh_runthreads(int nargs, char *args[])
 {
-    initialize();
+    initialize(20, "my tp");
     
     int numt = atoi(args[1]);
 
     int i = 0;
     for(; i < numt; i++) {
         submit(myfunc);
-    }   
+    }
     waitForTasks();
-    kprintf("done waiting\n");
+    kprintf("done waiting 1\n");
+
+    i = 0;
+    for(; i < numt; i++) {
+        submit(myfunc);
+    }
+
+    waitForTasks();
+    kprintf("done waiting 2\n");
 
     return 0;
 }
