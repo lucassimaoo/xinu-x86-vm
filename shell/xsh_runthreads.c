@@ -8,9 +8,10 @@ thread pool methods
 sid32 threads;
 pid32 callerPid;
 //int16 threadtab[NPROC];
-int32 nthreads = 0;
+int32 nthreads;
 
 void initialize() {
+    nthreads = 0;
     threads = semcreate(1);
 }
 
@@ -18,12 +19,12 @@ void threadWraper(void (*procaddr)()) {
     pid32 pid = getpid();
     //kprintf("gonna call function %d\n", pid);
     procaddr();
-    kprintf("calling wait %d\n", pid);
-    wait(threads);
-    kprintf("calling send %d\n", pid);
+    //kprintf("calling wait %d\n", pid);
+    //wait(threads);
+    //kprintf("calling send %d\n", pid);
     //threadtab[pid] = 0;
-    
-    send(callerPid, pid);
+    nthreads--;
+    //send(callerPid, pid);
 }
 
 void submit(void (*procaddr)()) {
@@ -35,17 +36,17 @@ void submit(void (*procaddr)()) {
 }
 
 void waitForTasks() {
-    while (1) {
-        
+    while (nthreads > 0) {
+        yield();
         //kprintf("receive %d\n", nthreads);
-        pid32 pid = receive();
-        kprintf("received %d\n", pid);
-        signal(threads);
-        nthreads--;
-        kprintf("threads %d\n", nthreads);
+        //pid32 pid = receive();
+        //kprintf("received %d\n", pid);
+        //signal(threads);
+        //nthreads--;
+        /*kprintf("threads %d\n", nthreads);
         if (nthreads == 0) {
             break;
-        }
+        }*/
 
        /* int32 i;
         for (i = 0; i < 100; i++) {
