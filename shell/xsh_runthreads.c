@@ -18,7 +18,6 @@ void initialize(char *name) {
 }
 
 void threadWraper(void (*procaddr)()) {
-    pid32 pid = getpid();
     procaddr();
     nthreads--;
 }
@@ -47,7 +46,7 @@ void myfunc() {
 
 shellcmd xsh_runthreads(int nargs, char *args[])
 {
-    initialize(20, "my tp");
+    initialize("my tp");
     
     int numt = atoi(args[1]);
 
