@@ -8,24 +8,26 @@ thread pool methods
 sid32 semthread;
 pid32 callerPid;
 int32 nthreads;
+char *tpname;
 
-void initialize() {
+void initialize(char *name) {
     nthreads = 0;
     semthread = semcreate(1);
+    tpname = name;
 }
 
 void threadWraper(void (*procaddr)()) {
     pid32 pid = getpid();
     procaddr();
-    kprintf("calling wait %d\n", pid);
     wait(semthread);
+    nthreads--;
     kprintf("calling send %d\n", pid);
     send(callerPid, pid);
 }
 
 void submit(void (*procaddr)()) {
     callerPid = getpid();
-    pid32 taskPid = create(threadWraper, 1024, 20, "threadpool", 1, procaddr);
+    pid32 taskPid = create(threadWraper, 1024, 20, *tpname + "_" + nthreads, 1, procaddr);
     nthreads++;
     resume(taskPid);
 }
@@ -35,8 +37,6 @@ void waitForTasks() {
         pid32 pid = receive();
         kprintf("received %d\n", pid);
         signal(semthread);
-        nthreads--;
-        kprintf("threads %d\n", nthreads);
     }
 }
 /*
@@ -52,16 +52,24 @@ void myfunc() {
 
 shellcmd xsh_runthreads(int nargs, char *args[])
 {
-    initialize();
+    initialize("my tp");
     
     int numt = atoi(args[1]);
 
     int i = 0;
     for(; i < numt; i++) {
         submit(myfunc);
-    }   
+    }
     waitForTasks();
-    kprintf("done waiting\n");
+    kprintf("done waiting 1\n");
+
+    i = 0;
+    for(; i < numt; i++) {
+        submit(myfunc);
+    }
+
+    waitForTasks();
+    kprintf("done waiting 2\n");
 
     return 0;
 }
