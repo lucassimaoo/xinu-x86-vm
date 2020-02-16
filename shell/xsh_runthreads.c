@@ -9,10 +9,10 @@ int32 nthreads;
 char *tpname;
 int32 ptnum;
 
-void initialize(char *name) {
+void initialize(char *name, int32 maxConcurrent) {
     nthreads = 0;
     tpname = name;
-    ptnum = ptcreate(10);
+    ptnum = ptcreate(maxConcurrent);
 }
 
 void threadWraper(void (*procaddr)()) {
@@ -48,7 +48,7 @@ void myfunc() {
 
 shellcmd xsh_runthreads(int nargs, char *args[])
 {
-    initialize("my tp");
+    initialize("my tp", 10);
     
     int numt = atoi(args[1]);
 
