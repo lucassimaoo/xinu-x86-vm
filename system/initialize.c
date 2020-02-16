@@ -198,6 +198,8 @@ static	void	sysinit(void)
 			(devptr->dvinit) (devptr);
 		}
 	}
+
+	ptinit(100);
 	return;
 }
 

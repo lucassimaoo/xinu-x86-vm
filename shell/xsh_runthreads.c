@@ -5,28 +5,25 @@
 /*
 thread pool methods
 */
-sid32 semthread;
-pid32 callerPid;
 int32 nthreads;
 char *tpname;
+int32 ptnum;
 
 void initialize(char *name) {
     nthreads = 0;
-    semthread = semcreate(1);
     tpname = name;
+    ptnum = ptcreate(10);
 }
 
 void threadWraper(void (*procaddr)()) {
     pid32 pid = getpid();
     procaddr();
-    wait(semthread);
     nthreads--;
     kprintf("calling send %d\n", pid);
-    send(callerPid, pid);
+    ptsend(ptnum, pid);
 }
 
 void submit(void (*procaddr)()) {
-    callerPid = getpid();
     pid32 taskPid = create(threadWraper, 1024, 20, *tpname + "_" + nthreads, 1, procaddr);
     nthreads++;
     resume(taskPid);
@@ -34,9 +31,8 @@ void submit(void (*procaddr)()) {
 
 void waitForTasks() {
     while (nthreads > 0) {
-        pid32 pid = receive();
+        pid32 pid = ptrecv(ptnum);
         kprintf("received %d\n", pid);
-        signal(semthread);
     }
 }
 /*
