@@ -31,8 +31,7 @@ void submit(void (*procaddr)()) {
 
 void waitForTasks() {
     while (nthreads > 0) {
-        pid32 pid = ptrecv(ptnum);
-        kprintf("received %d\n", pid);
+        ptrecv(ptnum);
     }
 }
 /*
