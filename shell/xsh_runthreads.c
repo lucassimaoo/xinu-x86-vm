@@ -35,7 +35,6 @@ void submit(void (*procaddr)()) {
 void waitForTasks() {
     while (nthreads > 0) {
         pid32 pid = receive();
-        kprintf("received %d\n", pid);
         signal(semthread);
     }
 }
