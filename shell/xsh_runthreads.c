@@ -28,19 +28,19 @@ shellcmd xsh_runthreads(int nargs, char *args[])
     int randomOrder = rand();
     int randomPriority = rand();
 
-    pri16 priority = 20;
+    pri16 priority = 21;
 
     // making second process higher priority
     if (randomPriority % 2 == 0) {
-        priority = 21;
+        priority = 22;
     }
 
     //alice thread goes first
     if (randomOrder % 2 == 0) {
-        resume(create(alice, 1024, 20, "alice", 0));
+        resume(create(alice, 1024, 21, "alice", 0));
         resume(create(bob, 1024, priority, "bob", 0));
     } else {
-        resume(create(bob, 1024, 20, "bob", 0));
+        resume(create(bob, 1024, 21, "bob", 0));
         resume(create(alice, 1024, priority, "alice", 0));
     }
 
