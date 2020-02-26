@@ -70,4 +70,16 @@ extern	shellcmd  xsh_uptime	(int32, char *[]);
 /* in file xsh_help.c */
 extern	shellcmd  xsh_help	(int32, char *[]);
 
-extern	shellcmd  xsh_runthreads	(int32, char *[]);
+extern	shellcmd  xsh_create	(int32, char *[]);
+
+extern	shellcmd  xsh_createsleep	(int32, char *[]);
+
+extern	shellcmd  xsh_wait	(int32, char *[]);
+
+extern	shellcmd  xsh_psready	(int32, char *[]);
+
+extern	shellcmd  xsh_signaln	(int32, char *[]);
+
+extern	shellcmd  xsh_resumen	(int32, char *[]);
+
+extern	shellcmd  xsh_suspend	(int32, char *[]);

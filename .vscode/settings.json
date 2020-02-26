@@ -1,0 +1,7 @@
+{
+    "files.associations": {
+        "xinu.h": "c",
+        "process.h": "c",
+        "semaphore.h": "c"
+    }
+}

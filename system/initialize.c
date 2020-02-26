@@ -20,6 +20,8 @@ struct	procent	proctab[NPROC];	/* Process table			*/
 struct	sentry	semtab[NSEM];	/* Semaphore table			*/
 struct	memblk	memlist;	/* List of free memory blocks		*/
 
+sid32 midTermSem;
+
 /* Active system status */
 
 int	prcount;		/* Total number of live processes	*/
@@ -78,6 +80,8 @@ void	nulluser(void)
 	/* Enable interrupts */
 	
 	enable();
+
+	midTermSem = semcreate(0);
 
 	/* Create a process to execute function main() */
 
