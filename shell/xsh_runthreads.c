@@ -2,69 +2,35 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-/*
-thread pool methods
-*/
-int32 nthreads;
-char *tpname;
 int32 ptnum;
+int maxMessages;
 
-void initialize(char *name, int32 maxConcurrent) {
-    nthreads = 0;
-    tpname = name;
-    ptnum = ptcreate(maxConcurrent);
-}
+void produce() {
 
-void threadWraper(void (*procaddr)()) {
-    pid32 pid = getpid();
-    procaddr();
-    nthreads--;
-    kprintf("calling send %d\n", pid);
-    ptsend(ptnum, pid);
-}
-
-void submit(void (*procaddr)()) {
-    pid32 taskPid = create(threadWraper, 1024, 20, *tpname + "_" + nthreads, 1, procaddr);
-    nthreads++;
-    resume(taskPid);
-}
-
-void waitForTasks() {
-    while (nthreads > 0) {
-        ptrecv(ptnum);
+    int i = 0;
+    // producing 3 more messages to showcase the limit
+    for(; i < maxMessages + 3; i++) {
+        ptsend(ptnum, i);
+        kprintf("sent %d\n", i);
     }
 }
-/*
-end of thread pool methods
-*/
 
-void myfunc() {
-    pid32 pid = getpid();
-    kprintf("myfunc %d\n", pid);
-    sleep(5);
-    kprintf("woke up %d\n", pid);
+void consume() {
+    sleepms(10000);
+
+    while(1) {
+        uint32 msg = ptrecv(ptnum);
+        kprintf("received %d\n", msg);
+    }
 }
 
 shellcmd xsh_runthreads(int nargs, char *args[])
 {
-    initialize("my tp", 10);
-    
-    int numt = atoi(args[1]);
+    maxMessages = atoi(args[1]);
+    ptnum = ptcreate(maxMessages);
 
-    int i = 0;
-    for(; i < numt; i++) {
-        submit(myfunc);
-    }
-    waitForTasks();
-    kprintf("done waiting 1\n");
-
-    i = 0;
-    for(; i < numt; i++) {
-        submit(myfunc);
-    }
-
-    waitForTasks();
-    kprintf("done waiting 2\n");
+    resume(create(produce, 1024, 20, "produce", 10));
+    resume(create(consume, 1024, 20, "consume", 10));
 
     return 0;
 }
