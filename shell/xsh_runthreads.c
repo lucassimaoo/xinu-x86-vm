@@ -56,15 +56,7 @@ shellcmd xsh_runthreads(int nargs, char *args[])
         submit(myfunc);
     }
     waitForTasks();
-    kprintf("done waiting 1\n");
-
-    i = 0;
-    for(; i < numt; i++) {
-        submit(myfunc);
-    }
-
-    waitForTasks();
-    kprintf("done waiting 2\n");
+    kprintf("done waiting \n");
 
     return 0;
 }
