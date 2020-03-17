@@ -1,7 +1,7 @@
 /* resched.c - resched */
 
 #include <xinu.h>
-
+pid32	starvpid;
 /*------------------------------------------------------------------------
  *  resched  -  Reschedule processor to highest priority eligible process
  *------------------------------------------------------------------------
@@ -33,12 +33,22 @@ void	resched(void)		/* assumes interrupts are disabled	*/
 		insert(currpid, readylist, ptold->prprio);
 	}
 
+	if (starvpid > 0) {
+		chprio(starvpid, getprio(starvpid) + 1);
+		//kprintf("prio %d,\n", getprio(starvpid));
+	}
+
 	/* Force context switch to highest priority ready process */
 
 	currpid = dequeue(readylist);
 	ptnew = &proctab[currpid];
 	ptnew->prstate = PR_CURR;
 	preempt = QUANTUM;		/* reset time slice for process	*/
+
+	//if (starvpid > 0) {
+		//kprintf("current %d prio %d,\n", currpid, getprio(currpid));
+	//}
+
 	ctxsw(&ptold->prstkptr, &ptnew->prstkptr);
 
 	/* Old process returns here when resumed */
