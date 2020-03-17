@@ -23,6 +23,21 @@ pri16	chprio(
 	prptr = &proctab[pid];
 	oldprio = prptr->prprio;
 	prptr->prprio = newprio;
+
+	switch (prptr->prstate) {
+	case PR_READY:
+		//if ready, reinsert it to the ready list with the new priority
+		insert( getitem(pid), readylist, newprio);
+		break;
+	case PR_CURR:
+		//if current do nothing
+		break;
+	default:
+		//if any other state, change it to ready
+		ready(pid, RESCHED_NO);
+		break;
+	}
+	
 	restore(mask);
 	return oldprio;
 }
